@@ -1,15 +1,18 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-
+import { useSelector } from 'react-redux';
 import { auth } from "../../firebase/utils"
 
 import './styles.scss'
 
 import Logo from '../../assets/SelfDevlpr_Cart-removebg-preview.png'
 
+const mapState = ({ user }) => ({
+    currentUser: user.currentUser
+});
+
 const Header = props => {
-    const { currentUser } = props;
+    const { currentUser } = useSelector(mapState);
 
     return (
         <header className='header'>
@@ -60,8 +63,11 @@ Header.defaultProps = {
     currentUser: null
 }
 
-const mapstateProps = ({ user }) => ({
-    currentUser: user.currentUser
-});
+// TACKELED WITH REDUX HOOKS
+// const mapStateProps = ({ user }) => ({
+//     currentUser: user.currentUser
+// });
 
-export default connect(mapstateProps, null)(Header);
+// export default connect(mapStateProps, null)(Header);
+
+export default Header;

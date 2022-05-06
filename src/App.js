@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
 // FIREBASE
 import { auth, handleUserProfile } from "./firebase/utils";
 
-// REDUX
+// Actions
 import { setCurrentUser } from './redux/user/user.actions';
 
 // LAYOUTS
@@ -20,10 +20,9 @@ import Recovery from './pages/Recovery';
 import Dashboard from './pages/Dashboard';
 
 // HOC
-import withAuth from "./hoc/withAuth"
+import WithAuth from "./hoc/withAuth"
 
 import './default.scss'
-import WithAuth from './hoc/withAuth';
 
 const App = props => {
 
@@ -36,21 +35,21 @@ const App = props => {
   //   }
   // }, [count])
 
-  const { setCurrentUser, currentUser } = props;
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const authListener = auth.onAuthStateChanged(async userAuth => {
       if (userAuth) {
         const userRef = await handleUserProfile(userAuth);
         userRef.onSnapshot(snapshot => {
-          setCurrentUser({
+         dispatch(setCurrentUser({
             id: snapshot.id,
             ...snapshot.data()
-          });
+          }));
         })
       }
 
-      setCurrentUser(userAuth);
+      dispatch(setCurrentUser(userAuth));
     });
 
     return () => {
@@ -97,12 +96,14 @@ const App = props => {
   );
 }
 
-const mapStateToProps = ({ user }) => ({
-  currentUser: user.currentUser
-});
+// const mapStateToProps = ({ user }) => ({
+//   currentUser: user.currentUser
+// });
 
-const mapDispatchToProps = dispatch => ({
-  setCurrentUser: user => dispatch(setCurrentUser(user))
-});
+// const mapDispatchToProps = dispatch => ({
+//   setCurrentUser: user => dispatch(setCurrentUser(user))
+// });
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+// export default connect(mapStateToProps, mapDispatchToProps)(App);
+
+export default App;

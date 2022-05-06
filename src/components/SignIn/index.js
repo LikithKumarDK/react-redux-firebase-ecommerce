@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useHistory } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { signInWithGoogle, auth } from '../../firebase/utils';
+// ACTIONS
+import { signInUser, signInWithGoogle, resetAllAuthForms } from '../../redux/user/user.actions';
 
 import AuthWrapper from '../AuthWrapper';
 import FormInput from "../forms/FormInput";
@@ -9,26 +11,39 @@ import Button from '../forms/button';
 
 import "./styles.scss";
 
+const mapState = ({ user }) => ({
+    signInSuccess: user.signInSuccess
+});
+
 const SignIn = props => {
+    const history = useHistory();
+    const dispatch = useDispatch();
+    const { signInSuccess } = useSelector(mapState);
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const history = useHistory();
+
+    useEffect(() => {
+        if (signInSuccess) {
+            console.log("mmmmmm");
+            resetForm();
+            dispatch(resetAllAuthForms());
+            history.push('/');
+        }
+    }, [signInSuccess])
 
     const resetForm = () => {
         setEmail('');
         setPassword('');
     }
 
-    const handleSubmit = async e => {
+    const handleSubmit = e => {
         e.preventDefault();
+        dispatch(signInUser({email, password}));
+    }
 
-        try {
-            await auth.signInWithEmailAndPassword(email, password);
-            resetForm();
-            history.push('/');
-        } catch (err) {
-            // console.log(err);
-        }
+    const handleGoogleSignIn = () => {
+      dispatch(signInWithGoogle());
     }
 
     const configAuthWrapper = {
@@ -62,7 +77,7 @@ const SignIn = props => {
 
                     <div className="socialSignIn">
                         <div className="row">
-                            <Button onClick={signInWithGoogle}>
+                            <Button onClick={handleGoogleSignIn}>
                                 Sign in with Google
                             </Button>
                         </div>
